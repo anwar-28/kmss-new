@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
-import { Outfit } from "next/font/google";
+import {
+  Inter,
+  Lexend,
+  Montserrat,
+  Montserrat_Alternates,
+  Outfit,
+} from "next/font/google";
 
 const inter = Outfit({
   subsets: ["latin"],

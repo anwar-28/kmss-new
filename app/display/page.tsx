@@ -1,47 +1,15 @@
 "use client";
 import React, { useState } from "react";
-import dynamic from "next/dynamic";
-import "react-quill/dist/quill.snow.css"; // Import Quill styles
 import { Button } from "@/components/ui/button";
-import { appwriteConfig, databases, storage } from "@/appwrite/config"; // Import storage
+import { appwriteConfig, databases, storage } from "@/appwrite/config";
 import { ID } from "appwrite";
 import { Input } from "@/components/ui/input";
-
-const QuillEditor = dynamic(() => import("react-quill"), { ssr: false });
+import { Editor } from "@tinymce/tinymce-react"; // Import TinyMCE Editor
 
 export default function Home() {
   const [content, setContent] = useState<string>("");
-  const [imageFile, setImageFile] = useState<File | null>(null); // State for image file
-  const [imageURL, setImageURL] = useState<string>(""); // State for image URL after upload
-
-  const quillModules = {
-    toolbar: [
-      [{ header: [1, 2, 3, false] }],
-      ["bold", "italic", "underline", "strike", "blockquote"],
-      [{ list: "ordered" }, { list: "bullet" }],
-      ["link", "image"],
-      [{ align: [] }],
-      [{ color: [] }],
-      ["code-block"],
-      ["clean"],
-    ],
-  };
-
-  const quillFormats = [
-    "header",
-    "bold",
-    "italic",
-    "underline",
-    "strike",
-    "blockquote",
-    "list",
-    "bullet",
-    "link",
-    "image",
-    "align",
-    "color",
-    "code-block",
-  ];
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageURL, setImageURL] = useState<string>("");
 
   const handleEditorChange = (newContent: string) => {
     setContent(newContent);
@@ -55,7 +23,7 @@ export default function Home() {
   });
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files) {
+    if (event.target.files && event.target.files[0]) {
       setImageFile(event.target.files[0]);
     }
   };
@@ -66,32 +34,30 @@ export default function Home() {
     try {
       let imageUrl = "";
       if (imageFile) {
-        // Upload the image file to Appwrite storage
         const uploadResponse = await storage.createFile(
-          appwriteConfig.bucketId, // Replace with your Appwrite storage bucket ID
-          ID.unique(), // Generates a unique ID for the file
+          appwriteConfig.bucketId,
+          ID.unique(),
           imageFile
         );
 
-        // Get the image URL
-        imageUrl = storage.getFileView(
+        const fileView = storage.getFileView(
           appwriteConfig.bucketId,
           uploadResponse.$id
-        ).href;
+        );
+        imageUrl = fileView.href;
         setImageURL(imageUrl);
       }
 
-      // Create a document in the Appwrite database
       const response = await databases.createDocument(
-        appwriteConfig.databaseId, // Replace with your Appwrite database ID
-        appwriteConfig.articlesCollection, // Replace with your Appwrite collection ID
-        ID.unique(), // Document ID, 'unique()' generates a unique ID
+        appwriteConfig.databaseId,
+        appwriteConfig.articlesCollection,
+        ID.unique(),
         {
           author: inputs.author,
           desgn: inputs.desgn,
           title_article: inputs.article_title,
           content: content,
-          author_image: imageUrl, // Save the image URL in the document
+          author_image: imageUrl,
         }
       );
 
@@ -129,7 +95,7 @@ export default function Home() {
               }
             />
             <Input
-              placeholder="Enter author desgn title"
+              placeholder="Enter author designation"
               value={inputs.desgn}
               onChange={(e) =>
                 setInputs((inputs) => ({
@@ -138,20 +104,26 @@ export default function Home() {
                 }))
               }
             />
-            <Input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange} // File input for image upload
-            />
+            <Input type="file" accept="image/*" onChange={handleImageChange} />
 
-            <QuillEditor
-              value={content}
-              onChange={handleEditorChange}
-              modules={quillModules}
-              formats={quillFormats}
-              className="w-full h-[70%] mt-10 bg-white"
+            <Editor
+              initialValue={content}
+              init={{
+                height: 500,
+                menubar: false,
+                plugins: [
+                  "advlist autolink lists link image charmap preview anchor",
+                  "searchreplace visualblocks code fullscreen",
+                  "insertdatetime media table paste code help wordcount",
+                ],
+                toolbar:
+                  "undo redo | formatselect | bold italic backcolor | \
+                  alignleft aligncenter alignright alignjustify | \
+                  bullist numlist outdent indent | removeformat | help",
+              }}
+              onChange={(e) => handleEditorChange(e.target.getContent())}
             />
-            <Button>Submit</Button>
+            <Button type="submit">Submit</Button>
           </form>
         </div>
       </div>
