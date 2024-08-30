@@ -10,7 +10,7 @@ export const appwriteConfig = {
   articlesCollection: process.env.NEXT_PUBLIC_ARTICLES_COLLECTION_ID as string,
 };
 
-client.setEndpoint(appwriteConfig.endpointUrl);
+client.setEndpoint("https://cloud.appwrite.io/v1");
 client.setProject(appwriteConfig.projectId);
 
 export const storage = new Storage(client);
