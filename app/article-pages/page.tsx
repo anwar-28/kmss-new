@@ -1,6 +1,12 @@
 import React from "react";
-import Home from "./Home";
-import NavBar from "../NavBar";
+import dynamic from "next/dynamic";
+
+const NavBar = dynamic(() => import("../NavBar"), {
+  ssr: false,
+});
+const Home = dynamic(() => import("./Home"), {
+  ssr: false,
+});
 
 const Page = () => {
   return (
