@@ -6,21 +6,26 @@ import { ID } from "appwrite";
 import { Input } from "@/components/ui/input";
 import { Editor } from "@tinymce/tinymce-react"; // Import TinyMCE Editor
 
-export default function Home() {
+export default function ArticleForm() {
   const [content, setContent] = useState<string>("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageURL, setImageURL] = useState<string>("");
-
-  const handleEditorChange = (newContent: string) => {
-    setContent(newContent);
-    console.log("Changed");
-  };
-
   const [inputs, setInputs] = useState({
     author: "",
     article_title: "",
     desgn: "",
   });
+  const [error, setError] = useState<string>("");
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setInputs((prevInputs) => ({ ...prevInputs, [name]: value }));
+  };
+
+  const handleEditorChange = (newContent: string) => {
+    setContent(newContent);
+    console.log("Editor content changed:", newContent);
+  };
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -31,6 +36,14 @@ export default function Home() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (!inputs.author || !inputs.article_title || !inputs.desgn || !content) {
+      setError("Please fill in all required fields.");
+      console.error("Please fill in all required fields.");
+      return;
+    }
+
+    setError(""); // Clear any previous errors
+
     try {
       let imageUrl = "";
       if (imageFile) {
@@ -40,6 +53,7 @@ export default function Home() {
           imageFile
         );
 
+        // Use Appwrite's getFileView for obtaining a URL
         const fileView = storage.getFileView(
           appwriteConfig.bucketId,
           uploadResponse.$id
@@ -62,8 +76,14 @@ export default function Home() {
       );
 
       console.log("Document created successfully:", response);
+      // Optionally, reset the form here
+      setInputs({ author: "", article_title: "", desgn: "" });
+      setContent("");
+      setImageFile(null);
+      setImageURL("");
     } catch (error) {
       console.error("Error creating document:", error);
+      setError("Error creating document. Please try again.");
     }
   };
 
@@ -73,38 +93,35 @@ export default function Home() {
         <div className="m-10 flex flex-col items-center"></div>
         <div className="h-full w-[90vw]">
           <form onSubmit={handleSubmit}>
-            <h1>Add new article</h1>
+            <h1 className="mb-4 text-2xl font-bold">Add new article</h1>
+            {error && <p className="text-red-500 mb-4">{error}</p>}
             <Input
+              name="article_title"
               placeholder="Enter article title"
               value={inputs.article_title}
-              onChange={(e) =>
-                setInputs((inputs) => ({
-                  ...inputs,
-                  article_title: e.target.value,
-                }))
-              }
+              onChange={handleInputChange}
+              className="mb-4"
             />
             <Input
+              name="author"
               placeholder="Enter author name"
               value={inputs.author}
-              onChange={(e) =>
-                setInputs((inputs) => ({
-                  ...inputs,
-                  author: e.target.value,
-                }))
-              }
+              onChange={handleInputChange}
+              className="mb-4"
             />
             <Input
+              name="desgn"
               placeholder="Enter author designation"
               value={inputs.desgn}
-              onChange={(e) =>
-                setInputs((inputs) => ({
-                  ...inputs,
-                  desgn: e.target.value,
-                }))
-              }
+              onChange={handleInputChange}
+              className="mb-4"
             />
-            <Input type="file" accept="image/*" onChange={handleImageChange} />
+            <Input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="mb-4"
+            />
 
             <Editor
               initialValue={content}
@@ -117,13 +134,13 @@ export default function Home() {
                   "insertdatetime media table paste code help wordcount",
                 ],
                 toolbar:
-                  "undo redo | formatselect | bold italic backcolor | \
-                  alignleft aligncenter alignright alignjustify | \
-                  bullist numlist outdent indent | removeformat | help",
+                  "undo redo | formatselect | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help",
               }}
-              onChange={(e) => handleEditorChange(e.target.getContent())}
+              onEditorChange={handleEditorChange}
             />
-            <Button type="submit">Submit</Button>
+            <Button type="submit" className="mt-4">
+              Submit
+            </Button>
           </form>
         </div>
       </div>

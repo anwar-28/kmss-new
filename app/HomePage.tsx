@@ -4,12 +4,12 @@ import Hero from "./Hero";
 
 const HomePage = () => {
   return (
-    <div>
+    <>
       <NavBar />
       <div>
         <Hero />
       </div>
-    </div>
+    </>
   );
 };
 

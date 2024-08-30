@@ -2,13 +2,13 @@ import React from "react";
 import Home from "./Home";
 import NavBar from "../NavBar";
 
-const page = () => {
+const Page = () => {
   return (
-    <div>
+    <>
       <NavBar />
       <Home />
-    </div>
+    </>
   );
 };
 
-export default page;
+export default Page;

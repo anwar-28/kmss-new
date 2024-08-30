@@ -28,8 +28,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
-      <Toaster />
+      <head />
+      <body>
+        <main className={inter.className}>{children}</main>
+        <Toaster />
+      </body>
     </html>
   );
 }

@@ -19,7 +19,7 @@ import React from "react";
 
 const NavBar = () => {
   return (
-    <div>
+    <>
       <nav className="flex gap-18 bg-slate-100 h-22 p-2">
         <label htmlFor="nav" className="p-4 flex gap-2">
           <img
@@ -49,7 +49,7 @@ const NavBar = () => {
               Academics
             </li>
           </Link>
-          <Link href="/articles">
+          <Link href="/article-pages">
             <li className="px-4 py-2 rounded-lg ml-4 cursor-pointer hover:bg-yellow-400 transition-all float-left">
               Articles
             </li>
@@ -90,7 +90,7 @@ const NavBar = () => {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <Link href="/articles">
+                <Link href="/article-pages">
                   <li className="px-4 py-2 rounded-lg ml-4 cursor-pointer  transition-all float-left">
                     Articles
                   </li>
@@ -107,7 +107,7 @@ const NavBar = () => {
           </DropdownMenu>
         </div>
       </nav>
-    </div>
+    </>
   );
 };
 
